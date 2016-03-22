@@ -11,19 +11,26 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
-var data = require('./data.js');
+var data = require('./data.json');
 var randomstring = require('randomstring');
 var fs = require('fs');
 var path = require('path');
+
 
 var addMessage = function(message) {
   message.createdAt = new Date();
   message.objectId = randomstring.generate(10);
   message.updatedAt = new Date();
   if (!message.roomname) { message.roomname = 'lobby'; }
+  //write to file
+  data.results.unshift(message);
+  fs.writeFile("./data.json", JSON.stringify(data), function(err) {
+    if(err) {
+      return console.log(err);
+    }
 
-  data.messages.results.unshift(message);
-
+    console.log("The file was saved!");
+  }); 
 
 };
 
@@ -42,7 +49,6 @@ var serveStatic = function(request, response) {
 
   // var lookup = path.basename(decodeURI(request.url)) || 'index.html', f = lookup;
   lookup = '../client' + lookup; f = lookup; 
-  console.log(lookup);
   fs.exists(f, function (exists) {
     if (exists) {
       fs.readFile(f, function(err, data) {
@@ -64,7 +70,6 @@ var serveStatic = function(request, response) {
 };
 
 var requestHandler = function(request, response) {
-
   // Request and Response come from node's http module.
   //
   // They include information about both the incoming request, such as
@@ -86,7 +91,7 @@ var requestHandler = function(request, response) {
     var headers = defaultCorsHeaders;
     headers['Content-Type'] = 'json';
     response.writeHead(statusCode, headers);
-    response.end(JSON.stringify(data.messages));
+    response.end(JSON.stringify(data));
 
   } else if (request.method === 'POST' && request.url === '/classes/messages') {
     var statusCode = 201;
@@ -104,7 +109,7 @@ var requestHandler = function(request, response) {
     request.on('end', function () {
       var jsonObj = JSON.parse(body);
       addMessage(jsonObj);
-      response.end(JSON.stringify(data.messages));
+      response.end(JSON.stringify(data));
     });
 
   } else if (request.method === 'OPTIONS' && (request.url === '/classes/messages?order=-createdAt' || request.url === '/classes/messages')) {
