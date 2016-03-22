@@ -12,14 +12,16 @@ this file and include it in basic-server.js so that it actually works.
 
 **************************************************************/
 var data = require('./data.js');
-var randomstring = require("randomstring");
+var randomstring = require('randomstring');
 
 var addMessage = function(message) {
-  message.createdAt = new Date().getTime();
+  message.createdAt = new Date();
   message.objectId = randomstring.generate(10);
-  message.updatedAt = new Date().getTime();
+  message.updatedAt = new Date();
 
-  data.messages.results.push(message);
+  data.messages.results.unshift(message);
+
+
 };
 
 var requestHandler = function(request, response) {
@@ -65,9 +67,11 @@ var requestHandler = function(request, response) {
     request.on('end', function () {
       var jsonObj = JSON.parse(body);
       addMessage(jsonObj);
+      console.log(data.messages);
+      response.end(JSON.stringify(data.messages));
     });
 
-    response.end('Hello, World!');
+
 
   }
 
