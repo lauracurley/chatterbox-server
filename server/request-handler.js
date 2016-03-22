@@ -18,6 +18,7 @@ var addMessage = function(message) {
   message.createdAt = new Date();
   message.objectId = randomstring.generate(10);
   message.updatedAt = new Date();
+  if (!message.roomname) { message.roomname = 'lobby'; }
 
   data.messages.results.unshift(message);
 
@@ -42,16 +43,14 @@ var requestHandler = function(request, response) {
   // console.logs in your code.
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
 
-  if (request.method === 'GET' && request.url === '/classes/messages') {
+  if (request.method === 'GET' && request.url === '/classes/messages?order=-createdAt') {
     var statusCode = 200;
     var headers = defaultCorsHeaders;
     headers['Content-Type'] = 'json';
     response.writeHead(statusCode, headers);
     response.end(JSON.stringify(data.messages));
 
-  }
-
-  if (request.method === 'POST' && request.url === '/classes/messages') {
+  } else if (request.method === 'POST' && request.url === '/classes/messages') {
     var statusCode = 201;
     var headers = defaultCorsHeaders;
     var body = [];
@@ -67,12 +66,24 @@ var requestHandler = function(request, response) {
     request.on('end', function () {
       var jsonObj = JSON.parse(body);
       addMessage(jsonObj);
-      console.log(data.messages);
       response.end(JSON.stringify(data.messages));
     });
 
-
-
+  } else if (request.method === 'OPTIONS' && (request.url === '/classes/messages?order=-createdAt' || request.url === '/classes/messages')) {
+    var statusCode = 200;
+    var headers = defaultCorsHeaders;
+    headers['Allow'] = 'GET,POST,OPTIONS';
+    headers['Access-Control-Allow-Headers'] = 'X-Parse-REST-API-Key, X-Parse-Javascript-Key, X-Parse-Application-Id, X-Parse-Client-Version, X-Parse-Session-Token, X-Requested-With, X-Parse-Revocable-Session, Content-Type';
+    headers['X-Parse-Application-Id'] = 'id';
+    headers['X-Parse-REST-API-Key'] = 'key';
+    response.writeHead(statusCode, headers);
+    response.end('OK');
+  } else {
+    var statusCode = 404;
+    var headers = defaultCorsHeaders;
+    headers['Content-Type'] = 'json';
+    response.writeHead(statusCode, headers);
+    response.end('ERROR');
   }
 
 

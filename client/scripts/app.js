@@ -3,7 +3,7 @@ var app = {
 
   //TODO: The current 'addFriend' function just adds the class 'friend'
   //to all messages sent by the user
-  server: 'https://api.parse.com/1/classes/messages/',
+  server: 'http://127.0.0.1:3000/classes/messages',
   username: 'anonymous',
   roomname: 'lobby',
   lastMessageId: 0,
@@ -144,7 +144,6 @@ var app = {
     if (!data.roomname) {
       data.roomname = 'lobby';
     }
-
     // Only add messages that are in our current room
     if (data.roomname === app.roomname) {
       // Create a div to hold the chats
