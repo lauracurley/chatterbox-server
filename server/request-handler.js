@@ -13,6 +13,8 @@ this file and include it in basic-server.js so that it actually works.
 **************************************************************/
 var data = require('./data.js');
 var randomstring = require('randomstring');
+var fs = require('fs');
+var path = require('path');
 
 var addMessage = function(message) {
   message.createdAt = new Date();
@@ -23,6 +25,42 @@ var addMessage = function(message) {
   data.messages.results.unshift(message);
 
 
+};
+
+var serveStatic = function(request, response) {
+  var mimeTypes = {
+    '.js': 'text/javascript',
+    '.html': 'text/html',
+    '.css': 'text/css'
+  };
+  var lookup, f;
+  if (request.url === '/') { 
+    lookup = '/index.html'; 
+  } else {
+    lookup = request.url;
+  }
+
+  // var lookup = path.basename(decodeURI(request.url)) || 'index.html', f = lookup;
+  lookup = '../client' + lookup; f = lookup; 
+  console.log(lookup);
+  fs.exists(f, function (exists) {
+    if (exists) {
+      fs.readFile(f, function(err, data) {
+        if (err) {
+          response.writeHead(404); response.end('Server Error!');
+          return;
+        }
+      
+        var headers = {'Content-type': mimeTypes[path.extname(request.url)]};  
+        response.writeHead(200, headers);
+        response.end(data);
+      });
+      return;
+    }
+    //doesn't exist
+    response.writeHead(404);
+    response.end();
+  });
 };
 
 var requestHandler = function(request, response) {
@@ -79,11 +117,12 @@ var requestHandler = function(request, response) {
     response.writeHead(statusCode, headers);
     response.end('OK');
   } else {
-    var statusCode = 404;
-    var headers = defaultCorsHeaders;
-    headers['Content-Type'] = 'json';
-    response.writeHead(statusCode, headers);
-    response.end('ERROR');
+    serveStatic(request, response);
+    // var statusCode = 404;
+    // var headers = defaultCorsHeaders;
+    // headers['Content-Type'] = 'json';
+    // response.writeHead(statusCode, headers);
+    // response.end('ERROR');
   }
 
 
