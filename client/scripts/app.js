@@ -5,7 +5,7 @@ var app = {
   //to all messages sent by the user
   server: 'http://127.0.0.1:8080/classes/messages',
   username: 'anonymous',
-  roomname: 'lobby',
+  roomname: 'Lobby',
   lastMessageId: 0,
   friends: {},
 
@@ -214,7 +214,7 @@ var app = {
     var message = {
       username: app.username,
       text: app.$message.val(),
-      roomname: app.roomname || 'lobby'
+      roomname: app.roomname || 'Lobby'
     };
 
     app.send(message);

@@ -16,6 +16,9 @@
     "request": "^2.34.0"
   },
   "dependencies": {
+    "body-parser": "^1.15.0",
+    "cors": "^2.7.1",
+    "express": "^4.13.4",
     "randomstring": "^1.1.4"
   }
 }
